@@ -1,0 +1,19 @@
+{
+  "name": "driver-perf",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal reproduction of the per-session cost that chromedriver's WebDriver BiDi mapper adds to New Session, vs Classic WebDriver. Built for the W3C Browser Testing and Tools WG.",
+  "scripts": {
+    "test": "node --test",
+    "bench": "node run.mjs",
+    "bench:newsession": "node bench/newsession.mjs",
+    "bench:anatomy": "node bench/anatomy.mjs",
+    "bench:profile-mapper": "node bench/profile-mapper.mjs",
+    "bench:initbidi": "node bench/initbidi.mjs",
+    "bench:reuse-session": "node bench/reuse-session.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

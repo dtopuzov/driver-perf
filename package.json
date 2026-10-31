@@ -11,9 +11,15 @@
     "bench:anatomy": "node bench/anatomy.mjs",
     "bench:profile-mapper": "node bench/profile-mapper.mjs",
     "bench:initbidi": "node bench/initbidi.mjs",
-    "bench:reuse-session": "node bench/reuse-session.mjs"
+    "bench:reuse-session": "node bench/reuse-session.mjs",
+    "bench:mapper-startup": "node bench/mapper-startup.mjs",
+    "bench:mapper-commands": "node bench/mapper-commands.mjs",
+    "bench:hybrid-interop": "node bench/hybrid-interop.mjs"
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "chromium-bidi": "157.0.8090-0"
   }
 }

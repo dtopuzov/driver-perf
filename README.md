@@ -111,6 +111,23 @@ The current deep-dive — Chromium/headless-shell comparison, architecture
 source links, and a WG-ready proposal — is in
 [`docs/RESEARCH-2026-07-10.md`](docs/RESEARCH-2026-07-10.md).
 
+### Moving the mapper out of the tab: chromium-bidi in Node (Chrome)
+
+What if the client runs the mapper itself, the way Puppeteer does, and talks
+CDP to Chrome directly? These benchmarks need `npm install` (they import
+chromium-bidi; nothing else in the repo does). Results and analysis:
+[`docs/RESEARCH-2026-10-31-mapper-in-node.md`](docs/RESEARCH-2026-10-31-mapper-in-node.md).
+
+| Benchmark | What it measures |
+|---|---|
+| [`bench/mapper-startup.mjs`](bench/mapper-startup.mjs) | Spawn-to-first-reply for chromedriver Classic, chromedriver BiDi, the mapper in Node (no driver), a hybrid (chromedriver attached for Classic + mapper in Node), and raw CDP (the floor). Warm (one process) and cold (fresh process per session) tables. |
+| [`bench/mapper-commands.mjs`](bench/mapper-commands.mjs) | Per-command cost (navigate, evaluate, locate, click, heavy navigate) across the same modes. |
+| [`bench/hybrid-interop.mjs`](bench/hybrid-interop.mjs) | Correctness of the hybrid: element ids across protocols, navigation and events seen from both sides, dialog ownership. |
+
+Headline on a 2013 Intel Mac, Chrome 156 (warm, paired, n=20): mapper in Node
+**−485ms** vs chromedriver Classic, chromedriver BiDi **+252ms**. Most of the
+win is removing chromedriver; the mapper itself costs ~120ms wherever it runs.
+
 Example anatomy output — the tax is entirely **post-boot**; Chrome itself
 starts in the same time both ways:
 
@@ -136,8 +153,8 @@ starts in the same time both ways:
 
 ## Requirements
 
-- **Node >= 22** (uses the built-in global `WebSocket`; no `npm install`
-  needed).
+- **Node >= 22** (uses the built-in global `WebSocket`). No `npm install`
+  needed, except for the mapper-in-Node benchmarks (chromium-bidi).
 - **chromedriver matching your installed Chrome's major version**, on
   `PATH` or via `CHROMEDRIVER=/abs/path/to/chromedriver`.
 - *(Firefox control, optional)* **geckodriver** on `PATH` or via
@@ -153,6 +170,11 @@ node bench/anatomy.mjs        # where the penalty lives (Chrome only)
 node bench/profile-mapper.mjs # multi-sample mapper phase medians
 node bench/initbidi.mjs       # the client-side mapper warm-up
 node bench/reuse-session.mjs  # tabs/user contexts in one warm BiDi session
+
+npm install                       # mapper-in-Node benchmarks only
+node bench/mapper-startup.mjs     # startup: chromedriver vs mapper in Node vs hybrid vs raw CDP
+node bench/mapper-commands.mjs    # per-command cost across the same modes
+node bench/hybrid-interop.mjs     # hybrid correctness checks
 
 BROWSER=firefox node bench/newsession.mjs   # the Firefox control (native BiDi)
 ```
